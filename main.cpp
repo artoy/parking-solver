@@ -12,21 +12,34 @@
 #include "tdzdd/eval/ToZBDD.hpp"
 #include "tdzdd/spec/SapporoZdd.hpp"
 
+#include <vector>
+#include <algorithm>
+
 using namespace tdzdd;
 using namespace sbddh;
+using namespace std;
 
-int i = 10, j = 10, k = 20;
-
-bool feasible() {
+// Function to determine if a given state is in the solution space
+bool is_feasible(vector<vector<int>> y_vectors) {
     
 }
 
+// The given initial state must be a feasible solution
 int main() {
+    int m, n, K;
+    cin >> m >> n >> K;
 
-    // SAPPOROBDD functions
+    // Memory allocation
     BDD_Init(1024, 1024 * 1024 * 1024);
-    BDD_NewVar();
-    BDD_NewVar();
+
+    // Allocate variables to be used
+    for (int i = 0; i < m * n * K; i++) {
+        BDD_NewVar();
+    }
+
+
+
+
     ZBDD z1 = ZBDD(1); // representing {{}}
     z1 = z1.Change(1); // representing {{1}}
 

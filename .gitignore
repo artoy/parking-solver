@@ -2,7 +2,7 @@
 .vscode/
 
 SAPPOROBDD/
-sbddd_helper/
+sbdd_helper/
 TdZdd/
 main
 reconf_op.hpp
