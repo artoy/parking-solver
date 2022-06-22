@@ -20,11 +20,12 @@ using namespace sbddh;
 using namespace std;
 
 // Function to determine if a given state is in the solution space
-bool is_feasible(vector<vector<int>> y_vectors) {
+bool is_feasible(ZBDD z) {
     
 }
 
-// The given initial state must be a feasible solution
+// NOTE: The given initial state must be a feasible solution
+// TODO: Change to detect when input is not a feasible solution
 int main() {
     int m, n, K;
     cin >> m >> n >> K;
@@ -37,9 +38,26 @@ int main() {
         BDD_NewVar();
     }
 
+    // Construct ZDD
+    vector<int> zVec;
+    // NOTE: Rows are denoted as i, columns as j, so j is on the outside
+    for (int j = 0; j < n; j++) {
+        for (int i = 0; i < m; i++) {
+            string square;
+            cin >> square;
+
+            if (square == "-") {
+                continue;
+            } else {
+                // Calculate the element number from the square and car number
+                zVec.push_back((i + 1) + m * j + m * n * (stoi(square) - 1));
+            }
+        }
+    }
+    ZBDD z = getSingleSet(zVec);
 
 
-
+    // FIX: Delete below
     ZBDD z1 = ZBDD(1); // representing {{}}
     z1 = z1.Change(1); // representing {{1}}
 
