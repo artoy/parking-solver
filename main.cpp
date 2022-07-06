@@ -41,7 +41,14 @@ ZBDD feasibleSolution(vector<vector<int>> carInfo) {
         if (carInfo.at(k).at(0) == 0) {
             // If the car is horizontal
             for (int i = 0; i < m * n; i++) {
-                
+                for (int j = 0; j < placementCar.size(); j++) {
+                    // The case that a car is split
+                    if (j > 0 && i + j % n == 0) continue;
+                    // The case that a car overflows the field
+                    if (i + j >= m * n) continue;
+
+                    placementCar.at(j) = (i + j + 1) + m * n * k;
+                }
             }
         } else if (carInfo.at(k).at(0) == 1) {
             // If the car is vertical
@@ -85,6 +92,7 @@ int main() {
                 continue;
             } else {
                 // Calculate the element number from the square and car number
+                // NOTE: Node numbers begin with 1
                 zVec.push_back((i + 1) + m * j + m * n * (stoi(square) - 1));
             }
         }
