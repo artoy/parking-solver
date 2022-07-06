@@ -19,26 +19,39 @@ using namespace tdzdd;
 using namespace sbddh;
 using namespace std;
 
+// m, n, K denote the number of rows, columns, and cars, respectively
 int m, n, K;
 
-// Function to determine if a given state is in the solution space
-ZBDD feasible_solution(vector<vector<int>> carInfo) {
-    vector<vector<int>> carPlacement (K, vector<int>(0));
+// Function to determine whether cars are overlapped
+bool isOverlap(vector<int> placementOfCar) {
 
-    for (int k = 0; k < K; k++) {
-        // Placement of a car
-        vector<int> placement(carInfo.at(k).at(1));
-
-        if (carInfo.at(k).at(0) == 0) {
-            // 
-        }
-    }
 }
 
-// FIX: Do not use
-// ZBDD xorByOneElement(ZBDD z, int e1, int e2) {
-//     return operator+(operator&(z.OnSet(e1), z.OffSet(e2)), operator&(z.OffSet(e1), z.OnSet(e2)));
-// }
+// Function to generate the solution space
+ZBDD feasibleSolution(vector<vector<int>> carInfo) {
+    vector<vector<int>> predPlacementsOfCars;
+
+    for (int k = 0; k < K; k++) {
+        // All placements of all cars
+        vector<vector<int>> placementsOfCars;
+
+        // Placement of a car
+        vector<int> placementCar(carInfo.at(k).at(1));
+
+        if (carInfo.at(k).at(0) == 0) {
+            // If the car is horizontal
+            for (int i = 0; i < m * n; i++) {
+                
+            }
+        } else if (carInfo.at(k).at(0) == 1) {
+            // If the car is vertical
+        } else {
+            // TODO: Output error
+        }
+
+        predPlacementsOfCars = placementsOfCars;
+    }
+}
 
 int main() {
     cin >> m >> n >> K;
@@ -58,7 +71,7 @@ int main() {
         BDD_NewVar();
     }
 
-    // Construct ZDD
+    // Construct initial ZDD
     vector<int> zVec;
     // NOTE: Rows are denoted as i, columns as j, so j is on the outside
     // NOTE: The given initial state must be a feasible solution
@@ -78,13 +91,14 @@ int main() {
     }
     ZBDD z = getSingleSet(zVec);
 
+
+    // FIXME: Delete below
     // // test
     // for (int v : zVec) {
     //     cout << v << endl;
     // }
 
 
-    // // FIX: Delete below
     // ZBDD z1 = ZBDD(1); // representing {{}}
     // z1 = z1.Change(1); // representing {{1}}
 
