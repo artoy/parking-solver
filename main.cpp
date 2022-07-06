@@ -22,43 +22,89 @@ using namespace std;
 // m, n, K denote the number of rows, columns, and cars, respectively
 int m, n, K;
 
-// Function to determine whether cars are overlapped
-bool isOverlap(vector<int> placementOfCar) {
-
-}
-
 // Function to generate the solution space
-ZBDD feasibleSolution(vector<vector<int>> carInfo) {
-    vector<vector<int>> predPlacementsOfCars;
+ZBDD getOverlapped(vector<vector<int>> carInfo) {
+    // All placements of all cars
+    vector<vector<vector<int>>> allPlacementsOfAllCars;
 
     for (int k = 0; k < K; k++) {
-        // All placements of all cars
-        vector<vector<int>> placementsOfCars;
-
-        // Placement of a car
-        vector<int> placementCar(carInfo.at(k).at(1));
+        // All placements of a car
+        vector<vector<int>> allPlacementsOfCar;
 
         if (carInfo.at(k).at(0) == 0) {
             // If the car is horizontal
             for (int i = 0; i < m * n; i++) {
-                for (int j = 0; j < placementCar.size(); j++) {
-                    // The case that a car is split
-                    if (j > 0 && i + j % n == 0) continue;
-                    // The case that a car overflows the field
-                    if (i + j >= m * n) continue;
+                // Placement of a car
+                vector<int> placementOfCar(carInfo.at(k).at(1));
+                // Whether the car is correctly positioned
+                bool isValid = true;
 
-                    placementCar.at(j) = (i + j + 1) + m * n * k;
+                // Add a square where the car is located
+                for (int j = 0; j < placementOfCar.size(); j++) {
+                    // The case that a car is split or overflows the field
+                    if ((j > 0 && (i + j) % n == 0) || i + j >= m * n) {
+                        isValid = false;
+                        break;
+                    }
+
+                    placementOfCar.at(j) = (i + j + 1) + m * n * k;
+                }
+
+                if (isValid) {
+                    allPlacementsOfCar.push_back(placementOfCar);
                 }
             }
         } else if (carInfo.at(k).at(0) == 1) {
             // If the car is vertical
+            for (int i = 0; i < m * n; i++) {
+                // Placement of a car
+                vector<int> placementOfCar(carInfo.at(k).at(1));
+                // Whether the car is correctly positioned
+                bool isValid = true;
+
+                // Add a square where the car is located
+                for (int j = 0; j < placementOfCar.size(); j++) {
+                    // The case that a car is split or overflows the field
+                    if (i + n * j >= m * n) {
+                        isValid = false;
+                        break;
+                    }
+
+                    placementOfCar.at(j) = (i + n * j + 1) + m * n * k;
+                }
+
+                if (isValid) {
+                    allPlacementsOfCar.push_back(placementOfCar);
+                }
+            }
         } else {
             // TODO: Output error
         }
 
-        predPlacementsOfCars = placementsOfCars;
+        allPlacementsOfAllCars.push_back(allPlacementsOfCar);
     }
+
+    // generate a vector contains ZDD represent the position of a car
+    vector<ZBDD> ZDDVec;
+    for (vector<vector<int>> allPlacements : allPlacementsOfAllCars) {
+        ZBDD z = getSingleSet(allPlacements.at(0));
+        for (int i = 1; i < allPlacements.size(); i++) {
+            z = operator+(z, getSingleSet(allPlacements.at(i)));
+        }
+
+        ZDDVec.push_back(z);
+    }
+
+    // generate ZDD without considering overlap
+    ZBDD overlappedZDD = ZDDVec.at(0);
+    for (int i = 1; i < ZDDVec.size(); i++) {
+        overlappedZDD = operator*(overlappedZDD, ZDDVec.at(i));
+    }
+
+    return overlappedZDD;
 }
+
+// TODO: Create a ZDD for each square and take intersections
 
 int main() {
     cin >> m >> n >> K;
@@ -98,6 +144,11 @@ int main() {
         }
     }
     ZBDD z = getSingleSet(zVec);
+
+    // FIXME: test
+    ZBDD oz = getOverlapped(carInfo);
+    string s = ZStr(oz);
+    cout << s << endl;
 
 
     // FIXME: Delete below
