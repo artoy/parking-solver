@@ -145,6 +145,9 @@ int main() {
     }
     ZBDD z = getSingleSet(zVec);
 
+    // TODO: Add transition rules
+    // Transition rule is the most common
+
     // FIXME: test
     ZBDD oz = getOverlapped(carInfo);
     string s = ZStr(oz);
