@@ -22,7 +22,7 @@ using namespace std;
 // m, n, K denote the number of rows, columns, and cars, respectively
 int m, n, K;
 
-// Function to generate the solution space
+// Function to generate solution space without considering overlapped
 ZBDD getOverlapped(vector<vector<int>> carInfo) {
     // All placements of all cars
     vector<vector<vector<int>>> allPlacementsOfAllCars;
@@ -103,6 +103,26 @@ ZBDD getOverlapped(vector<vector<int>> carInfo) {
 
     return overlappedZDD;
 }
+
+// Function to generate a vector of ZDD represents node number per square
+vector<ZBDD> getNodesPerSquare () {
+    // ZDD represents node number per square
+    vector<ZBDD> nodesPerSquare(K);
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            // a vector represents node number corresponding to a square
+            vector<int> oneSquare(m * n);
+            for (int k = 0; k < K; k++) {
+                // NOTE: Node numbers begin with 1!!
+                oneSquare.at(k) = ((i + 1) + m * j + m * n * k)
+            }
+
+            nodesPerSquare.push_back(getSingleSet(oneSquare));
+        }
+    }
+}
+
+// Function to generate the solution space
 
 // TODO: Create a ZDD for each square and take intersections
 
