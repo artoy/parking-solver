@@ -107,24 +107,32 @@ ZBDD getOverlapped(vector<vector<int>> carInfo) {
 // Function to generate a vector of ZDD represents node number per square
 vector<ZBDD> getNodesPerSquare () {
     // ZDD represents node number per square
-    vector<ZBDD> nodesPerSquare(K);
+    vector<ZBDD> nodesPerSquare(m * n);
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             // a vector represents node number corresponding to a square
-            vector<int> oneSquare(m * n);
+            vector<int> oneSquare(K);
             for (int k = 0; k < K; k++) {
                 // NOTE: Node numbers begin with 1!!
-                oneSquare.at(k) = ((i + 1) + m * j + m * n * k)
+                oneSquare.at(k) = ((i + 1) + m * j + m * n * k);
             }
 
-            nodesPerSquare.push_back(getSingleSet(oneSquare));
+            nodesPerSquare.at(i + m * j) = getSingleSet(oneSquare);
         }
     }
+
+    return nodesPerSquare;
 }
 
 // Function to generate the solution space
 
+
 // TODO: Create a ZDD for each square and take intersections
+
+// Function to perform one transition
+// ZBDD transition(ZBDD z) {
+
+// }
 
 int main() {
     cin >> m >> n >> K;
@@ -169,9 +177,14 @@ int main() {
     // Transition rule is the most common
 
     // FIXME: test
-    ZBDD oz = getOverlapped(carInfo);
-    string s = ZStr(oz);
-    cout << s << endl;
+    // ZBDD oz = getOverlapped(carInfo);
+    // string s = ZStr(oz);
+    // cout << s << endl;
+
+    // vector<ZBDD> zs = getNodesPerSquare();
+    // for (ZBDD z : zs) {
+    //     cout << ZStr(z) << endl;
+    // }
 
 
     // FIXME: Delete below
