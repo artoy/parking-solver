@@ -105,7 +105,7 @@ ZBDD getOverlapped(vector<vector<int>> carInfo) {
 }
 
 // Function to generate a vector of ZDD represents node number per square
-vector<ZBDD> getNodesPerSquare () {
+vector<ZBDD> getNodesPerSquare() {
     // ZDD represents node number per square
     vector<ZBDD> nodesPerSquare(m * n);
     for (int i = 0; i < m; i++) {
@@ -124,8 +124,20 @@ vector<ZBDD> getNodesPerSquare () {
     return nodesPerSquare;
 }
 
-// Function to generate the solution space
+// Function to find the elements of F which intersect S and the number of elements contained by intersection is less than or equal to k
+ZBDD selectWithLimitByIntersection(ZBDD F, ZBDD S, int k) {
+    if (k < 0) {
+        return ZBDD(0);
+    } else if (F == ZBDD(0) || F == ZBDD(1)) {
+        return F;
+    } else if (S == ZBDD(0)) {
 
+    } else {
+        
+    }
+}
+
+// Function to generate the solution space
 
 // TODO: Create a ZDD for each square and take intersections
 
