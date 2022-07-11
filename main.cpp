@@ -19,11 +19,8 @@ using namespace tdzdd;
 using namespace sbddh;
 using namespace std;
 
-// m, n, K denote the number of rows, columns, and cars, respectively
-int m, n, K;
-
 // Function to generate solution space without considering overlapped
-ZBDD getOverlapped(vector<vector<int>> carInfo) {
+ZBDD getOverlapped(int m, int n, int K, vector<vector<int>> carInfo) {
     // All placements of all cars
     vector<vector<vector<int>>> allPlacementsOfAllCars;
 
@@ -104,10 +101,10 @@ ZBDD getOverlapped(vector<vector<int>> carInfo) {
     return overlappedZDD;
 }
 
-// Function to generate a vector of ZDD represents node number per square
-vector<ZBDD> getNodesPerSquare() {
+// Function to generate a ZDD represents node number per square
+ZBDD getNodesPerSquare(int m, int n, int K) {
     // ZDD represents node number per square
-    vector<ZBDD> nodesPerSquare(m * n);
+    ZBDD nodesPerSquare;
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < n; j++) {
             // a vector represents node number corresponding to a square
@@ -117,7 +114,11 @@ vector<ZBDD> getNodesPerSquare() {
                 oneSquare.at(k) = ((i + 1) + m * j + m * n * k);
             }
 
-            nodesPerSquare.at(i + m * j) = getSingleSet(oneSquare);
+            if (i == 0 && j == 0) {
+                nodesPerSquare = getSingleSet(oneSquare);
+            } else {
+                nodesPerSquare = operator+(nodesPerSquare, getSingleSet(oneSquare));
+            }
         }
     }
 
@@ -128,18 +129,53 @@ vector<ZBDD> getNodesPerSquare() {
 ZBDD selectWithLimitByIntersection(ZBDD F, ZBDD S, int k) {
     if (k < 0) {
         return ZBDD(0);
-    } else if (F == ZBDD(0) || F == ZBDD(1)) {
+    } else if (F == ZBDD(0) || F == ZBDD(1) || S == ZBDD(0) || S == ZBDD(1)) {
         return F;
-    } else if (S == ZBDD(0)) {
-
     } else {
-        
+        int t1 = F.Top();
+        int t2 = S.Top();
+
+        if (t1 == t2) {
+            // If the top-level node of F and S are the same
+            ZBDD F0 = F.OffSet(t1);
+            ZBDD F1 = F.OnSet0(t1);
+            ZBDD S0 = S.OffSet(t1);
+            ZBDD S1 = S.OnSet0(t1);
+
+            ZBDD F0S0 = selectWithLimitByIntersection(F0, S0, k);
+            ZBDD F0S1 = selectWithLimitByIntersection(F0, S1, k);
+            ZBDD F1S0 = selectWithLimitByIntersection(F1, S0, k);
+            ZBDD F1S1 = selectWithLimitByIntersection(F1, S1, k - 1);
+
+            return operator+(operator&(F0S0, F0S1), operator*(getSingleton(t1), operator&(F1S0, F1S1)));
+        } else if (t1 < t2) {
+            // If the top-level node of S is greater than F's
+            ZBDD S0 = S.OffSet(t2);
+            ZBDD S1 = S.OnSet0(t2);
+
+            ZBDD FS0 = selectWithLimitByIntersection(F, S0, k);
+            ZBDD FS1 = selectWithLimitByIntersection(F, S1, k);
+
+            return operator&(FS0, FS1);
+        } else {
+            // If the top-level node of F is greater than S's
+            ZBDD F0 = F.OffSet(t1);
+            ZBDD F1 = F.OnSet0(t1);
+
+            ZBDD F0S = selectWithLimitByIntersection(F0, S, k);
+            ZBDD F1S = selectWithLimitByIntersection(F1, S, k);
+
+            return operator+(F0S, operator*(getSingleton(t1), F1S));
+        }
     }
 }
 
 // Function to generate the solution space
-
-// TODO: Create a ZDD for each square and take intersections
+ZBDD getSolutionSpace(int m, int n, int K, vector<vector<int>> carInfo) {
+    ZBDD overlapped = getOverlapped(m, n, K, carInfo);
+    ZBDD perSquare = getNodesPerSquare(m, n, K);
+    return selectWithLimitByIntersection(overlapped, perSquare, 1);
+}
 
 // Function to perform one transition
 // ZBDD transition(ZBDD z) {
@@ -147,6 +183,8 @@ ZBDD selectWithLimitByIntersection(ZBDD F, ZBDD S, int k) {
 // }
 
 int main() {
+    // m, n, K denote the number of rows, columns, and cars, respectively
+    int m, n, K;
     cin >> m >> n >> K;
 
     // Hold the direction and length of cars
@@ -165,7 +203,7 @@ int main() {
     }
 
     // Construct initial ZDD
-    vector<int> zVec;
+    vector<int> initialVec;
     // NOTE: Rows are denoted as i, columns as j, so j is on the outside
     // NOTE: The given initial state must be a feasible solution
     // TODO: Change to detect when input is not a feasible solution
@@ -179,55 +217,19 @@ int main() {
             } else {
                 // Calculate the element number from the square and car number
                 // NOTE: Node numbers begin with 1
-                zVec.push_back((i + 1) + m * j + m * n * (stoi(square) - 1));
+                initialVec.push_back((i + 1) + m * j + m * n * (stoi(square) - 1));
             }
         }
     }
-    ZBDD z = getSingleSet(zVec);
+    ZBDD zInitial = getSingleSet(initialVec);
+
+    ZBDD zSol = getSolutionSpace(m, n, K, carInfo);
 
     // TODO: Add transition rules
     // Transition rule is the most common
 
     // FIXME: test
-    // ZBDD oz = getOverlapped(carInfo);
-    // string s = ZStr(oz);
-    // cout << s << endl;
-
-    // vector<ZBDD> zs = getNodesPerSquare();
-    // for (ZBDD z : zs) {
-    //     cout << ZStr(z) << endl;
-    // }
-
-
-    // FIXME: Delete below
-    // // test
-    // for (int v : zVec) {
-    //     cout << v << endl;
-    // }
-
-
-    // ZBDD z1 = ZBDD(1); // representing {{}}
-    // z1 = z1.Change(1); // representing {{1}}
-
-    // // SAPPOROBDD helper functions
-    // ZBDD z2 = getSingleton(1); // representing {{1}}
-    // ZBDD z3 = getChild1(z2); // representing {{}}
-
-    // // tdzdd functions
-    // IntRange range(2, 2); // size just 2
-    // SizeConstraint sc(3, range); // (require including spec/SizeConstraint.hpp)
-    // DdStructure<2> dd1(sc); // representing {{1, 2}, {1, 3}, {2, 3}}
-
-    // // translate tdzdd to SAPPOROBDD (require including eval/ToZBDD.hpp)
-    // ZBDD z4 = dd1.evaluate(ToZBDD());
-
-    // // translate SAPPOROBDD to tdzdd (require including spec/SapporoZdd.hpp)
-    // DdStructure<2> dd2 = DdStructure<2>(SapporoZdd(z4));
-
-    // bool b = (z1 == z2 && isConstant(z3) && dd1.zddCardinality() == "3"
-    //           && z4.Card() == 3 && dd2.zddCardinality() == "3");
-    // std::cout << "program " << (b ? "works" : "does not work")
-    //           << " correctly" << std::endl;
+    cout << ZStr(zSol) << endl;
 
     return 0;
 }
