@@ -196,6 +196,7 @@ ZBDD add(ZBDD F, list<int> A) {
     if (F == ZBDD(0)) {
         return ZBDD(0);
     } else if (F == ZBDD(1)) {
+        // FIXME The first element is duplicated
         auto itrFirst = A.begin();
         ZBDD z = getSingleton(*itrFirst);
 
