@@ -302,9 +302,6 @@ int main() {
             F = transition(F, V, FSol, FPrev);
             FPrev = FTmp;
             count++;
-
-            // FIXME: test
-            // cout << ZStr(F) << endl;
         }
     }
 
