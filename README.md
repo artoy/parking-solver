@@ -1,4 +1,4 @@
-# parking-solver
+# rush-hour-solver
 
 ## Usage
 
